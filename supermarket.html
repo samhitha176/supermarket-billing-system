@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Super Market</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background: #f4f1ec;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2a9d8f, #264653);
+            padding: 35px;
+            text-align: center;
+            color: white;
+        }
+
+        table {
+            width: 70%;
+            margin: 30px auto;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 12px 25px rgba(0,0,0,0.15);
+        }
+
+        th, td {
+            padding: 16px;
+            text-align: center;
+        }
+
+        th {
+            background: #84a98c;
+            color: #1b4332;
+        }
+
+        tr:hover {
+            background: #edf6f9;
+        }
+
+        .product {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .product img {
+            width: 36px;
+        }
+
+        input {
+            width: 80px;
+            padding: 6px;
+            border-radius: 6px;
+            border: 1px solid #bbb;
+            text-align: center;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #2a9d8f;
+        }
+
+        .total-row {
+            background: #ffe8a1;
+            font-weight: bold;
+        }
+
+        .btn {
+            display: block;
+            margin: 20px auto;
+            padding: 12px 25px;
+            background: #2a9d8f;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background: #21867a;
+        }
+
+        /* Bill Section */
+        .bill {
+            width: 60%;
+            margin: 20px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+            display: none;
+        }
+
+        .bill h3 {
+            text-align: center;
+        }
+
+        .bill p {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        @media (max-width: 768px) {
+            table, .bill {
+                width: 95%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="header">
+    <h1>Super Market Billing System</h1>
+</div>
+
+<table>
+    <tr>
+        <th>Item</th>
+        <th>Price</th>
+        <th>Quantity</th>
+    </tr>
+
+    <tr>
+        <td class="product">
+            <img src="https://cdn-icons-png.flaticon.com/512/415/415733.png">
+            Apple
+        </td>
+        <td>$1</td>
+        <td><input type="number" class="qty" data-item="Apple" data-price="1" min="0"></td>
+    </tr>
+
+    <tr>
+        <td class="product">
+            <img src="https://cdn-icons-png.flaticon.com/512/684/684631.png">
+            Milk
+        </td>
+        <td>$2.5</td>
+        <td><input type="number" class="qty" data-item="Milk" data-price="2.5" min="0"></td>
+    </tr>
+
+    <tr>
+        <td class="product">
+            <img src="https://cdn-icons-png.flaticon.com/512/135/135620.png">
+            Orange
+        </td>
+        <td>$3</td>
+        <td><input type="number" class="qty" data-item="Orange" data-price="3" min="0"></td>
+    </tr>
+
+    <tr>
+        <td class="product">
+            <img src="https://cdn-icons-png.flaticon.com/512/590/590772.png">
+            Cherry
+        </td>
+        <td>$1.5</td>
+        <td><input type="number" class="qty" data-item="Cherry" data-price="1.5" min="0"></td>
+    </tr>
+
+    <tr class="total-row">
+        <td colspan="2">Total</td>
+        <td id="total">$0.00</td>
+    </tr>
+</table>
+
+<button class="btn" onclick="generateBill()">Generate Bill</button>
+
+<div class="bill" id="bill">
+    <h3>Bill Summary</h3>
+    <div id="billDetails"></div>
+    <hr>
+    <p><strong>Subtotal:</strong> <span id="sub"></span></p>
+    <p><strong>Discount (10%):</strong> <span id="disc"></span></p>
+    <p><strong>Final Total:</strong> <span id="final"></span></p>
+</div>
+
+<script>
+    const inputs = document.querySelectorAll('.qty');
+    const totalEl = document.getElementById('total');
+
+    inputs.forEach(i => i.addEventListener('input', updateTotal));
+
+    function updateTotal() {
+        let total = 0;
+        inputs.forEach(i => {
+            const qty = Math.max(0, i.value || 0);
+            i.value = qty;
+            total += qty * i.dataset.price;
+        });
+        totalEl.textContent = `$${total.toFixed(2)}`;
+    }
+
+    function generateBill() {
+        let subtotal = 0;
+        let billHTML = "";
+
+        inputs.forEach(i => {
+            const qty = i.value;
+            if (qty > 0) {
+                const price = i.dataset.price;
+                const cost = qty * price;
+                subtotal += cost;
+                billHTML += `<p>${i.dataset.item} x ${qty} <span>$${cost.toFixed(2)}</span></p>`;
+            }
+        });
+
+        if (subtotal === 0) {
+            alert("Please select at least one item");
+            return;
+        }
+
+        const discount = subtotal * 0.1;
+        const finalTotal = subtotal - discount;
+
+        document.getElementById('billDetails').innerHTML = billHTML;
+        document.getElementById('sub').textContent = `$${subtotal.toFixed(2)}`;
+        document.getElementById('disc').textContent = `$${discount.toFixed(2)}`;
+        document.getElementById('final').textContent = `$${finalTotal.toFixed(2)}`;
+
+        document.getElementById('bill').style.display = "block";
+    }
+</script>
+
+</body>
+</html>
